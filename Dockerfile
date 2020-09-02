@@ -38,13 +38,13 @@ RUN apt-get install -y --no-install-recommends \
 RUN mv /bin/sh /bin/sh.old && cp /bin/bash /bin/sh
 
 # Clone the dataset repo
-RUN git clone https://github.com/alan-turing-institute/TCPD
+RUN git clone https://github.com/jayschauer/TCPD
 
 # Build the dataset
 RUN cd TCPD && make export
 
 # Clone the repo
-RUN git clone --recurse-submodules https://github.com/alan-turing-institute/TCPDBench
+RUN git clone --recurse-submodules https://github.com/jayschauer/TCPDBench
 
 # Copy the datasets into the benchmark dir
 RUN mkdir -p /TCPDBench/datasets && cp TCPD/export/*.json /TCPDBench/datasets/

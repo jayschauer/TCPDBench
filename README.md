@@ -18,6 +18,11 @@ Dataset](https://github.com/alan-turing-institute/TCPD) (TCPD).
   Williams](https://homepages.inf.ed.ac.uk/ckiw/).
 - [Annotation Tool](https://github.com/alan-turing-institute/annotatechange)
 
+If you encounter a problem when using this repository or simply want to ask a 
+question, please don't hesitate to [open an issue on 
+GitHub](https://github.com/alan-turing-institute/TCPDBench/issues) or send an 
+email to ``gvandenburg at turing dot ac dot uk``.
+
 ## Introduction
 
 Change point detection focuses on accurately detecting moments of abrupt 
@@ -93,7 +98,7 @@ figures a working LaTeX and ``latexmk`` installation is needed.
 ### Reproducing the experiments
 
 To fully reproduce the experiments, some additional steps are needed. Note 
-that the Docker procedure outlined below automates this process substantially.
+that the Docker procedure outlined below automates this process somewhat.
 
 First, obtain the [Turing Change Point 
 Dataset](https://github.com/alan-turing-institute/TCPD) and follow the 
@@ -147,7 +152,8 @@ instructions are as follows:
    Note that this will also create an R virtual environment (using 
    [RSimpleVenv](https://github.com/GjjvdBurg/RSimpleVenv)), which ensures 
    that the exact versions of the packages used in the experiments will be 
-   installed.
+   installed. This step can take a little while (:coffee:), but is important 
+   to ensure reproducibility.
 
 5. Run abed through ``mpiexec``, as follows:
 
@@ -155,11 +161,12 @@ instructions are as follows:
    $ mpiexec -np 4 abed local
    ```
 
-   This will run abed using 4 cores, which can of course be increased if 
-   desired. Note that a minimum of two cores is needed for abed to operate. 
-   Furthermore, you may want to run these experiments in parallel on a large 
+   This will run abed using 4 cores, which can of course be increased or 
+   decreased if desired. Note that a minimum of two cores is needed for abed 
+   to operate. You may want to run these experiments in parallel on a large 
    number of cores, as the expected runtime is on the order of 21 days on a 
-   single core.
+   single core. Once this command starts running the experiments you will see 
+   result files appear in the ``staging`` directory.
 
 ### Running the experiments with Docker
 
@@ -171,23 +178,34 @@ build the Docker image using:
 $ docker build -t alan-turing-institute/tcpdbench github.com/alan-turing-institute/TCPDBench
 ```
 
-You can then follow the same procedure as above but using the relevant docker 
-commands to run them in the container:
+To ensure that the results created in the docker container persist to the 
+host, we need to create a volume first (following [these 
+instructions](https://stackoverflow.com/a/47528568/1154005)):
+
+```
+$ mkdir /path/to/tcpdbench/results     # *absolute* path where you want the results
+$ docker volume create --driver local \
+                       --opt type=none \
+                       --opt device=/path/to/tcpdbench/results \
+                       --opt o=bind tcpdbench_vol
+```
+
+You can then follow the same procedure as described above to reproduce the 
+experiments, but using the relevant docker commands to run them in the 
+container:
 
 * For reproducing just the tables and figures, use:
   ```
-  $ docker run -v /absolute/path/to/TCPDBench:/TCPDBench alan-turing-institute/tcpdbench /bin/bash -c "make results"
+  $ docker run -i -t -v tcpdbench_vol:/TCPDBench alan-turing-institute/tcpdbench /bin/bash -c "make results"
   ```
 
-* For reproducing all the experiments:
+* For reproducing all the experiments, use:
   ```
-  $ docker run -v /absolute/path/to/TCPDBench:/TCPDBench alan-turing-institute/tcpdbench /bin/bash -c "mv abed_results old_abed_results && mkdir abed_results && abed reload_tasks && abed status && make venvs && mpiexec --allow-run-as-root -np 4 abed local && make results"
+  $ docker run -i -t -v tcpdbench_vol:/TCPDBench alan-turing-institute/tcpdbench /bin/bash -c "mv abed_results old_abed_results && mkdir abed_results && abed reload_tasks && abed status && make venvs && mpiexec --allow-run-as-root -np 4 abed local && make results"
   ```
+  where ``-np 4`` sets the number of cores used for the experiments to four. 
+  This can be changed as desired to increase efficiency.
 
-where in both cases ``/absolute/path/to/TCPDBench`` is replaced with the path 
-on your machine where you want to store the files (so that results are not 
-lost when the docker container closes, see [docker 
-volumes](https://docs.docker.com/storage/volumes/)).
 
 ## Extending the Benchmark
 

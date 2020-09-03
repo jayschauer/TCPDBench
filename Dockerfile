@@ -38,10 +38,10 @@ RUN apt-get install -y --no-install-recommends \
 RUN mv /bin/sh /bin/sh.old && cp /bin/bash /bin/sh
 
 # Clone the dataset repo
-RUN git clone https://github.com/jayschauer/TCPD
+# RUN git clone https://github.com/jayschauer/TCPD
 
 # Build the dataset
-RUN cd TCPD && make export
+# RUN cd TCPD && make export
 
 # Clone the repo
 RUN git clone --recurse-submodules https://github.com/jayschauer/TCPDBench

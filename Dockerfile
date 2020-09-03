@@ -47,7 +47,8 @@ RUN mv /bin/sh /bin/sh.old && cp /bin/bash /bin/sh
 RUN git clone --recurse-submodules https://github.com/jayschauer/TCPDBench
 
 # Copy the datasets into the benchmark dir
-RUN mkdir -p /TCPDBench/datasets && cp TCPD/export/*.json /TCPDBench/datasets/
+RUN mkdir -p /TCPDBench/datasets
+# && cp TCPD/export/*.json /TCPDBench/datasets/
 
 # Install Python dependencies
 RUN pip install -r /TCPDBench/analysis/requirements.txt
